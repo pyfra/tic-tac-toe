@@ -10,8 +10,19 @@ class Game:
 
     def _initialize_game(self):
         self.board = Board()
-        self.players = [HumanPlayer("X"), RandomPlayer("O")]
+        computer = True if input('Do you want to play against the computer (Y or N): ') == 'Y' else False
+        if computer:
+            start = True if input('Do you want to play first (Y or N): ') == 'Y' else False
+            if start:
+                self.players = [HumanPlayer("X"), RandomPlayer("O")]
+            else:
+                self.players = [RandomPlayer("X"), HumanPlayer("O")]
+        else:
+            self.players = [HumanPlayer("X"), HumanPlayer("O")]
         self.i = 0
+        print('#' * 30)
+        print('Game begins')
+        print('#' * 30)
         self.board.draw()
 
     def new_game(self):
@@ -26,7 +37,7 @@ class Game:
             if stop:
                 print('game is over!')
                 if status == 'win':
-                    print('Player %d wins!' % self.i+1)
+                    print('Player %d wins!' % (self.i+1))
                 else:
                     print('It was a draw!')
 
