@@ -36,7 +36,7 @@ class Board:
     def is_game_over(self, player):
         if len(self.valid_moves) > 5:
             return False, None
-        #check rows
+        # check rows
         elif self._board['A'][0] == self._board['A'][1] == self._board['A'][2] == player.symbol:
             return True, "win"
         elif self._board['B'][0] == self._board['B'][1] == self._board['B'][2] == player.symbol:
@@ -59,3 +59,13 @@ class Board:
             return True, "draw"
         else:
             return False, None
+
+
+class BoardGUI(Board):
+    
+    def draw(self):
+        print('-' * 30)
+        print('    ' + '   '.join(list(map(str, self._cols))))
+        for el, line in self._board.items():
+            print(el + ' | ' + ' | '.join(line) + ' |')
+        print('-' * 30)

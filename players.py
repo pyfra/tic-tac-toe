@@ -1,14 +1,15 @@
 import numpy as np
+import copy
 
 
 class Player:
-    def __init__(self, symbol):
+    def __init__(self, symbol, *args, **kwargs):
         self.symbol = symbol
 
 
 class RandomPlayer(Player):
 
-    def move(self, valid_moves):
+    def move(self, valid_moves, *args, **kwargs):
         ind = np.random.uniform(0, len(valid_moves) - 1)
         move = valid_moves[int(ind)]
         print(move)
@@ -17,12 +18,40 @@ class RandomPlayer(Player):
 
 class HumanPlayer(Player):
 
-    def move(self, valid_moves):
+    def move(self, valid_moves, *args, **kwargs):
         return input("please enter the move: ")
 
 
 class MiniMaxPlayer(Player):
-    pass
+    _MAPPING_GAME = {
+        'win': 1,
+        'draw': 0
+    }
+
+    def __init__(self, symbol, other_player):
+        self.other = other_player
+        super(MiniMaxPlayer, self).__init__(symbol)
+
+    def move(self, valid_moves, board, *args, **kwargs):
+        scores_moves = self._evaluate_best_move(valid_moves, board, self, 1)
+        return scores_moves
+
+    def _evaluate_best_move(self, valid_moves, board, player, multiplier):
+        scores_moves = list()
+        for move in valid_moves:
+            # create  copy of the board
+            board_copy = copy.deepcopy(board)
+            board_copy.update_board(move, player)
+            is_over, result = board_copy.is_game_over(player)
+            if is_over:
+                scores_moves.append(self._MAPPING_GAME[result] * multiplier)
+            else:
+                new_player = self.other if player == self else self
+                new_multiplier = 1 if multiplier == -1 else 1
+                score = self._evaluate_best_move(board_copy.valid_moves, board_copy, new_player, new_multiplier)
+                scores_moves.append(score)
+            # return scores_moves.index(max(scores_moves))
+        return max(scores_moves)
 
 
 class MixedPlayer(Player):

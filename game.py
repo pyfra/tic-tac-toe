@@ -1,5 +1,5 @@
 from board import Board
-from players import RandomPlayer, HumanPlayer
+from players import RandomPlayer, HumanPlayer, MiniMaxPlayer
 
 
 class Game:
@@ -14,9 +14,9 @@ class Game:
         if computer:
             start = True if input('Do you want to play first (Y or N): ') == 'Y' else False
             if start:
-                self.players = [HumanPlayer("X"), RandomPlayer("O")]
+                self.players = [HumanPlayer("X"), MiniMaxPlayer("O", HumanPlayer("X"))]
             else:
-                self.players = [RandomPlayer("X"), HumanPlayer("O")]
+                self.players = [MiniMaxPlayer("X", HumanPlayer("O")), HumanPlayer("O")]
         else:
             self.players = [HumanPlayer("X"), HumanPlayer("O")]
         self.i = 0
@@ -30,7 +30,7 @@ class Game:
         while True:
             print('-' * 30)
             print("Player %d turn" % (self.i + 1))
-            move = self.players[self.i].move(self.board.valid_moves)
+            move = self.players[self.i].move(self.board.valid_moves, self.board)
             next_player = self.board.update_board(move, self.players[self.i])
             self.board.draw()
             stop, status = self.board.is_game_over(self.players[self.i])
