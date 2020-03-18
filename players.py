@@ -69,10 +69,11 @@ class MixedPlayer(Player):
     It will be used to smooth the better player and have intermediate levels of difficulties between the two players
     """
 
-    def __init__(self, p, other_player):
+    def __init__(self, other_player, p):
         self.p = p
-        self.players = [RandomPlayer(), other_player]
+        self.players = [RandomPlayer(other_player.symbol), other_player]
+        self.symbol = other_player.symbol
 
-    def move(self, valid_moves):
+    def move(self, valid_moves, *args, **kwargs):
         i = np.random.binomial(1, self.p)
-        return self.players[i]
+        return self.players[i].move(valid_moves, *args, **kwargs)
