@@ -1,10 +1,13 @@
 import numpy as np
 import copy
-
+import os
 
 class Player:
     def __init__(self, symbol, *args, **kwargs):
         self.symbol = symbol
+
+    def move(self, *args, **kwargs):
+        raise NotImplementedError()
 
 
 class RandomPlayer(Player):
@@ -41,7 +44,7 @@ class MiniMaxPlayer(Player):
     def _evaluate_best_move(self, valid_moves, board, player, multiplier, i):
         scores_moves = list()
         mapping_moves_scores = dict()
-        min_or_max = [max, min] # apply min or max according to which player move is being evaluated
+        min_or_max = [max, min]  # apply min or max according to which player move is being evaluated
         for move in valid_moves:
             # create  copy of the board
             board_copy = copy.deepcopy(board)
@@ -53,7 +56,8 @@ class MiniMaxPlayer(Player):
                 new_player = self.other if player == self else self
                 new_multiplier = 1 if multiplier == -1 else -1
                 new_i = 0 if i == 1 else 1
-                score, _, _ = self._evaluate_best_move(board_copy.valid_moves, board_copy, new_player, new_multiplier, new_i)
+                score, _, _ = self._evaluate_best_move(board_copy.valid_moves, board_copy, new_player, new_multiplier,
+                                                       new_i)
             scores_moves.append(score)
             mapping_moves_scores[move] = score
         min_or_max_score = min_or_max[i](scores_moves)
@@ -61,6 +65,35 @@ class MiniMaxPlayer(Player):
 
     def _visualize_scores(self):
         print(self.moves_scores)
+
+
+class DLPlayer(Player):
+
+    def __init__(self):
+        """
+        Look for file where model is saved otherwise train it!
+        """
+        # check if file exists
+
+        if True:
+            from keras.models import load_model
+        else:
+            raise NotImplementedError('There is no saved models, you might want to train your own DL model and save it')
+
+    def move(self, valid_moves, board, *args, **kwargs):
+        pass
+
+    def create_model(self):
+        pass
+
+    def train_model(self, model):
+        import pandas as pd
+        # read data and prepare
+        # read data
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        data_raw = pd.read_csv(os.path.join(dir_path, 'dataset', 'tic-tac-toe.data'))
+
+        pass
 
 
 class MixedPlayer(Player):
