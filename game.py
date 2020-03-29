@@ -1,5 +1,5 @@
 from board import Board
-from players import RandomPlayer, HumanPlayer, MiniMaxPlayer, MixedPlayer
+from players import RandomPlayer, HumanPlayer, MiniMaxPlayer, MixedPlayer, DLPlayer
 
 
 class Game:
@@ -15,9 +15,11 @@ class Game:
             difficulty_level = int(input('What difficulty level? (0-10): ')) / 10
             start = True if input('Do you want to play first (Y or N): ') == 'Y' else False
             if start:
-                self.players = [HumanPlayer("X"), MixedPlayer(MiniMaxPlayer("O", HumanPlayer("X")), difficulty_level)]
+                # self.players = [HumanPlayer("X"), MixedPlayer(MiniMaxPlayer("O", HumanPlayer("X")), difficulty_level)]
+                self.players = [HumanPlayer("X"), MixedPlayer(DLPlayer("O"), difficulty_level)]
             else:
-                self.players = [MixedPlayer(MiniMaxPlayer("X", HumanPlayer("O")), difficulty_level), HumanPlayer("O")]
+                # self.players = [MixedPlayer(MiniMaxPlayer("X", HumanPlayer("O")), difficulty_level), HumanPlayer("O")]
+                self.players = [MixedPlayer(DLPlayer("X"), difficulty_level), HumanPlayer("O")]
         else:
             self.players = [HumanPlayer("X"), HumanPlayer("O")]
         self.i = 0

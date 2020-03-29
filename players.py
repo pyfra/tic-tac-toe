@@ -1,10 +1,14 @@
 import numpy as np
 import copy
 import os
+from sklearn.preprocessing import OneHotEncoder
+
 
 class Player:
     def __init__(self, symbol, *args, **kwargs):
         self.symbol = symbol
+        assert self.symbol in ["X",
+                               "O"], "unsupported symbol %s, the only possible symbols supported now are X and O" % self.symbol
 
     def move(self, *args, **kwargs):
         raise NotImplementedError()
@@ -69,32 +73,60 @@ class MiniMaxPlayer(Player):
 
 class DLPlayer(Player):
 
-    def __init__(self):
+    def __init__(self, symbol):
         """
         Look for file where model is saved otherwise train it!
         """
         # check if file exists
-
-        if True:
+        super(DLPlayer, self).__init__(symbol)
+        target_file = os.path.join(os.path.dirname(__file__), 'trained_models', 'nn_model.h5')
+        if os.path.isfile(target_file):
             from keras.models import load_model
+            self.nn = load_model(target_file)
         else:
             raise NotImplementedError('There is no saved models, you might want to train your own DL model and save it')
 
+        other_symbol = "O" if self.symbol == "X" else "X"
+
+        self._labels_encoding = {
+            ' ': 0,
+            other_symbol: 1,
+            self.symbol: 2,  # always need to map out player to X
+        }
+
+        self._moves_mapping = []
+
     def move(self, valid_moves, board, *args, **kwargs):
-        pass
+        encoded_board = self._encode_board_status(board)
+        encoded_moves = self._encode_valid_moves(valid_moves)
+        all_boards = self._get_all_possible_board_states(encoded_board, encoded_moves)
 
-    def create_model(self):
-        pass
+    def _encode_valid_moves(self, moves):
+        return [self._map_move(move) for move in moves]
 
-    def train_model(self, model):
-        import pandas as pd
-        # read data and prepare
-        # read data
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        data_raw = pd.read_csv(os.path.join(dir_path, 'dataset', 'tic-tac-toe.data'))
+    def _get_all_possible_board_states(self, encoded_board, encoded_valid_moves):
+        expanded_board = np.tile(encoded_board, (len(encoded_valid_moves), 1))
+        for i, move in enumerate(encoded_valid_moves):
+            expanded_board[i, move] = self._labels_encoding["X"]
 
-        pass
+        return expanded_board
 
+    def _encode_board_status(self, board):
+        target_array = self._flatten_board(board)
+        encoded_board = np.vectorize(self._labels_encoding.get)(target_array)
+        return encoded_board
+
+    def _flatten_board(self, board):
+        target_list = []
+        for _, l in board._board.items():
+            target_list += l
+
+        return np.array(target_list)
+    @staticmethod
+    def _map_move(move):
+        _map = {'A': 0, 'B': 3, 'C': 6}
+        row, col = move
+        return _map[row] + int(col) - 1
 
 class MixedPlayer(Player):
     """

@@ -3,6 +3,7 @@ import os
 import numpy as np
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.model_selection import train_test_split
+from sklearn.externals import joblib
 
 ######### Read and prepare the data
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -36,7 +37,6 @@ nn.add(Dense(units=5, kernel_initializer='glorot_normal'))
 nn.add(Activation('tanh'))
 nn.add(Dropout(.5))
 
-
 # Add second hidden layer
 nn.add(Dense(units=3, kernel_initializer='glorot_normal'))
 nn.add(Activation('tanh'))
@@ -65,7 +65,6 @@ nn.add(Dense(units=5, kernel_initializer='glorot_normal'))
 nn.add(Activation('tanh'))
 nn.add(Dropout(.5))
 
-
 # Add second hidden layer
 nn.add(Dense(units=3, kernel_initializer='glorot_normal'))
 nn.add(Activation('tanh'))
@@ -92,3 +91,6 @@ print('accuracy on validation test %.4f' % accuracy)
 print('Saving model...')
 import os
 
+target_path = os.path.join(os.path.dirname(__file__), 'trained_models', 'nn_model.h5')
+nn.save(target_path)
+print('model saved in %s' % target_path)
