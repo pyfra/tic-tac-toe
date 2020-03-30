@@ -95,11 +95,15 @@ class DLPlayer(Player):
         }
 
         self._moves_mapping = []
+        self._board = np.zeros(27)
 
     def move(self, valid_moves, board, *args, **kwargs):
         encoded_board = self._encode_board_status(board)
         encoded_moves = self._encode_valid_moves(valid_moves)
         all_boards = self._get_all_possible_board_states(encoded_board, encoded_moves)
+        one_hot_encoded_all = np.apply_along_axis(hot_encoded_board, 1, all_boards)
+        best_move_index = self.nn.predict(one_hot_encoded_all).argmax()
+        return valid_moves[best_move_index]
 
     def _encode_valid_moves(self, moves):
         return [self._map_move(move) for move in moves]
@@ -107,8 +111,7 @@ class DLPlayer(Player):
     def _get_all_possible_board_states(self, encoded_board, encoded_valid_moves):
         expanded_board = np.tile(encoded_board, (len(encoded_valid_moves), 1))
         for i, move in enumerate(encoded_valid_moves):
-            expanded_board[i, move] = self._labels_encoding["X"]
-
+            expanded_board[i, move] = self._labels_encoding[self.symbol]
         return expanded_board
 
     def _encode_board_status(self, board):
@@ -116,17 +119,25 @@ class DLPlayer(Player):
         encoded_board = np.vectorize(self._labels_encoding.get)(target_array)
         return encoded_board
 
+    def _hot_encoded_board(self, encoded_board):
+        new_board = np.copy(self._board)
+        for i, el in enumerate(encoded_board):
+            new_board[i * 3 + el] = 1
+        return new_board
+
     def _flatten_board(self, board):
         target_list = []
         for _, l in board._board.items():
             target_list += l
 
         return np.array(target_list)
+
     @staticmethod
     def _map_move(move):
         _map = {'A': 0, 'B': 3, 'C': 6}
         row, col = move
         return _map[row] + int(col) - 1
+
 
 class MixedPlayer(Player):
     """
@@ -142,3 +153,11 @@ class MixedPlayer(Player):
     def move(self, valid_moves, *args, **kwargs):
         i = np.random.binomial(1, self.p)
         return self.players[i].move(valid_moves, *args, **kwargs)
+
+
+def hot_encoded_board(encoded_board):
+    new_board = np.zeros(18)
+    for i, el in enumerate(encoded_board):
+        if el != 0:
+            new_board[i * 2 + (el - 1)] = 1
+    return new_board

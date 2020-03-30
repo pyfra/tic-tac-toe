@@ -17,37 +17,10 @@ y = labelencoder_y.fit_transform(y)
 # Define and prepare X
 X = data_raw.iloc[:, :9]
 X = OneHotEncoder().fit_transform(X).toarray()
+X = np.delete(X, [0, 3, 6, 9, 12, 15, 18, 21, 24], axis=1)
 
 # Train/test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
-
-from keras.models import Sequential
-from keras.layers import Dense, ReLU, Activation, LeakyReLU, Dropout
-
-# Initialize neural network
-nn = Sequential()
-
-# Add first hidden layer (and input layer)
-nn.add(Dense(units=9, kernel_initializer='glorot_normal', input_dim=27))
-nn.add(Activation('tanh'))
-nn.add(Dropout(.5))
-
-# Add second hidden layer
-nn.add(Dense(units=5, kernel_initializer='glorot_normal'))
-nn.add(Activation('tanh'))
-nn.add(Dropout(.5))
-
-# Add second hidden layer
-nn.add(Dense(units=3, kernel_initializer='glorot_normal'))
-nn.add(Activation('tanh'))
-
-# Add output layer
-nn.add(Dense(units=1, kernel_initializer='glorot_normal'))
-nn.add(Activation('sigmoid'))
-
-# Compile network
-nn.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
@@ -56,7 +29,7 @@ from keras.layers import Dense, Activation, Dropout
 nn = Sequential()
 
 # Add first hidden layer (and input layer)
-nn.add(Dense(units=9, kernel_initializer='glorot_normal', input_dim=27))
+nn.add(Dense(units=9, kernel_initializer='glorot_normal', input_dim=18))
 nn.add(Activation('tanh'))
 nn.add(Dropout(.5))
 

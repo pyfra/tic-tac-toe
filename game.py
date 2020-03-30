@@ -1,5 +1,7 @@
 from board import Board
-from players import RandomPlayer, HumanPlayer, MiniMaxPlayer, MixedPlayer, DLPlayer
+from players import RandomPlayer, HumanPlayer, MiniMaxPlayer, MixedPlayer, DLPlayer, Player
+import random as rnd
+import time
 
 
 class Game:
@@ -28,8 +30,9 @@ class Game:
         print('#' * 30)
         self.board.draw()
 
-    def new_game(self):
+    def new_game(self, sleep=0):
         self._initialize_game()
+        result = None
         while True:
             print('-' * 30)
             print("Player %d turn" % (self.i + 1))
@@ -40,9 +43,11 @@ class Game:
             if stop:
                 print('game is over!')
                 if status == 'win':
-                    print('Player %d wins!' % (self.i+1))
+                    print('Player %d wins!' % (self.i + 1))
+                    result = self.i + 1
                 else:
                     print('It was a draw!')
+                    reult = 0
 
                 key = input('Enter Y to play another game, any other keys to exit: ')
                 if key == 'Y':
@@ -53,6 +58,29 @@ class Game:
 
             if next_player:
                 self.i = 0 if self.i == 1 else 1
+
+        time.sleep(sleep)
+        return result
+
+
+class GameMinimaxVsNN(Game):
+
+    def _initialize_game(self):
+        self.board = Board()
+
+        print("Welcome to the game of Minimax vs NN")
+        if rnd.uniform(0, 1) >= .5:
+            print("NN starts")
+            self.players = [DLPlayer("X"), MiniMaxPlayer("O", Player("X"))]
+        else:
+            print("Minimax starts")
+            self.players = [MiniMaxPlayer("X", Player("O")), DLPlayer("O")]
+
+        self.i = 0
+        print('#' * 30)
+        print('Game begins')
+        print('#' * 30)
+        self.board.draw()
 
 
 if __name__ == "__main__":

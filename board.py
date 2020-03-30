@@ -62,7 +62,7 @@ class Board:
 
 
 class BoardGUI(Board):
-    
+
     def draw(self):
         print('-' * 30)
         print('    ' + '   '.join(list(map(str, self._cols))))
